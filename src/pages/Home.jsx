@@ -2,69 +2,41 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import {
-  ArrowRight,
-  ArrowDown,
-  MapPin,
-  Phone,
-  WhatsappLogo,
-  Star,
-  Quotes,
-  CaretLeft,
-  CaretRight,
-  Heart,
-  Briefcase,
-  Buildings,
-  Leaf,
-  Lightbulb,
-  CheckCircle,
+  ArrowRight, ArrowDown, MapPin, Phone, WhatsappLogo, Star, Quotes,
+  CaretLeft, CaretRight, CheckCircle, Rocket, ShieldCheck, Target,
+  Buildings, Lightbulb, NavigationArrow, Clock, Package, Truck,
 } from '@phosphor-icons/react';
 import PageTransition from '../components/PageTransition';
 import siteData from '../data/siteData';
 
-
-/* ================================================================
-   UTILITY -- Icon map for services
-   ================================================================ */
-const iconMap = {
-  Heart, Briefcase, Star, Buildings, Leaf, Lightbulb,
-};
+const iconMap = { Buildings, Lightbulb, Rocket, ShieldCheck, Star, Target };
 
 
 /* ================================================================
-   ANIMATED COUNTER -- counts up when in view
+   ANIMATED COUNTER
    ================================================================ */
 function AnimatedCounter({ target, suffix = '', duration = 2.5 }) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-50px' });
   const numericTarget = parseInt(target.replace(/[^0-9]/g, ''), 10) || 0;
-
   useEffect(() => {
     if (!inView) return;
     let start = 0;
     const increment = numericTarget / (duration * 60);
     const timer = setInterval(() => {
       start += increment;
-      if (start >= numericTarget) {
-        setCount(numericTarget);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(start));
-      }
+      if (start >= numericTarget) { setCount(numericTarget); clearInterval(timer); }
+      else setCount(Math.floor(start));
     }, 1000 / 60);
     return () => clearInterval(timer);
   }, [inView, numericTarget, duration]);
-
-  return (
-    <span ref={ref}>
-      {inView ? count.toLocaleString() : '0'}{suffix}
-    </span>
-  );
+  return <span ref={ref}>{inView ? count.toLocaleString() : '0'}{suffix}</span>;
 }
 
 
 /* ================================================================
-   NOISE TEXTURE -- reusable inline noise overlay
+   NOISE TEXTURE
    ================================================================ */
 function NoiseTexture({ opacity = 0.035 }) {
   return (
@@ -82,33 +54,42 @@ function NoiseTexture({ opacity = 0.035 }) {
 
 
 /* ================================================================
-   GOLD SPARKLES -- CSS-only floating particles
+   SPEED PARTICLES — green streaks that drift across the hero
    ================================================================ */
-function GoldSparkles() {
+function GoldDust() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-[5]">
-      {[...Array(20)].map((_, i) => (
+      {[...Array(14)].map((_, i) => (
         <div
           key={i}
-          className="absolute rounded-full"
+          className="absolute"
           style={{
-            width: `${Math.random() * 3 + 1}px`,
-            height: `${Math.random() * 3 + 1}px`,
-            background: `radial-gradient(circle, rgba(212,168,83,${Math.random() * 0.6 + 0.2}) 0%, transparent 70%)`,
+            width: `${Math.random() * 80 + 20}px`,
+            height: '1px',
+            background: `linear-gradient(90deg, transparent, rgba(202,165,21,${Math.random() * 0.35 + 0.1}), transparent)`,
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
-            animation: `sparkle-float ${Math.random() * 8 + 6}s ease-in-out infinite`,
+            animation: `gold-drift ${Math.random() * 4 + 3}s linear infinite`,
             animationDelay: `${Math.random() * 5}s`,
           }}
         />
       ))}
+      <style>{`
+        @keyframes gold-drift {
+          0% { transform: translateX(-200px); opacity: 0; }
+          20% { opacity: 1; }
+          80% { opacity: 1; }
+          100% { transform: translateX(calc(100vw + 200px)); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }
 
 
 /* ================================================================
-   1. HERO -- Full Viewport, Cinematic Crossfade
+   1. HERO — Dark with Green Speed Accent
+   "Fast. Reliable. On Time." stacked headline
    ================================================================ */
 function HeroSection() {
   const { business, hero } = siteData;
@@ -126,13 +107,13 @@ function HeroSection() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroImages.length);
-    }, 6000);
+    }, 5000);
     return () => clearInterval(timer);
   }, [heroImages.length]);
 
   return (
-    <section ref={containerRef} className="relative h-screen min-h-[700px] overflow-hidden bg-navy-950">
-      {/* Background carousel with crossfade + parallax */}
+    <section ref={containerRef} className="relative h-screen min-h-[700px] overflow-hidden bg-[#0a2a1a]">
+      {/* Parallax background carousel */}
       <motion.div className="absolute inset-0" style={{ y: bgY }}>
         <AnimatePresence mode="sync">
           <motion.img
@@ -147,15 +128,17 @@ function HeroSection() {
             loading="eager"
           />
         </AnimatePresence>
-        {/* Cinematic overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-navy-950/80 via-navy-950/50 to-navy-950/90 z-[1]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-navy-950/70 via-transparent to-navy-950/30 z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a2a1a]/90 via-[#0a2a1a]/60 to-[#0a2a1a]/95 z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a2a1a]/80 via-transparent to-[#0a2a1a]/40 z-[1]" />
       </motion.div>
 
-      {/* Gold sparkle particles */}
-      <GoldSparkles />
+      <GoldDust />
+      <NoiseTexture opacity={0.03} />
 
-      {/* Slide indicators -- right edge */}
+      {/* Green vertical speed line — left edge */}
+      <div className="absolute top-[10%] left-0 w-[3px] h-40 sm:h-56 bg-gradient-to-b from-transparent via-gold-500 to-transparent z-20" />
+
+      {/* Slide indicators — right edge */}
       <div className="absolute right-5 sm:right-8 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-3">
         {heroImages.map((_, i) => (
           <button
@@ -169,26 +152,20 @@ function HeroSection() {
         ))}
       </div>
 
-      {/* Film grain noise */}
-      <NoiseTexture opacity={0.03} />
-
-      {/* Vertical gold accent line -- left edge */}
-      <div className="absolute top-[15%] left-0 w-[2px] h-32 sm:h-48 bg-gradient-to-b from-transparent via-gold-500 to-transparent z-20" />
-
       {/* Content */}
       <motion.div
         className="relative z-20 flex flex-col justify-center h-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 pt-36"
         style={{ y: textY, opacity }}
       >
-        {/* Small gold accent line */}
+        {/* Green speed bar */}
         <motion.div
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
-          transition={{ duration: 1, delay: 0.3, ease: 'easeOut' }}
-          className="w-16 h-[2px] bg-gradient-to-r from-gold-500 to-gold-400/50 mb-6 origin-left"
+          transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
+          className="w-20 h-[3px] bg-gradient-to-r from-gold-500 to-gold-400/50 mb-6 origin-left"
         />
 
-        {/* Subtitle badge */}
+        {/* Badge */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -199,9 +176,9 @@ function HeroSection() {
           {hero.badge}
         </motion.p>
 
-        {/* Giant stacked text */}
+        {/* Giant stacked headline */}
         <div className="overflow-hidden">
-          {['WHERE GARDENS ', 'COME', ' ALIVE.'].map((line, i) => (
+          {['FRAGRANCE', 'LANDSCAPES.'].map((line, i) => (
             <motion.div
               key={line}
               initial={{ y: '110%' }}
@@ -210,13 +187,13 @@ function HeroSection() {
             >
               <h1
                 className={`font-heading leading-[0.92] tracking-tight ${
-                  line === 'COME'
-                    ? 'bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600 bg-clip-text text-transparent italic'
+                  line === 'LANDSCAPES.'
+                    ? 'bg-gradient-to-r from-gold-500 via-gold-400 to-gold-300 bg-clip-text text-transparent'
                     : 'text-white'
                 }`}
                 style={{
                   fontSize: 'clamp(2.2rem, 7vw, 4.5rem)',
-                  fontWeight: line === 'COME' ? 700 : 300,
+                  fontWeight: line === 'LANDSCAPES.' ? 700 : 300,
                 }}
               >
                 {line}
@@ -225,7 +202,7 @@ function HeroSection() {
           ))}
         </div>
 
-        {/* Trust line */}
+        {/* Trust badge line */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -234,7 +211,7 @@ function HeroSection() {
         >
           <div className="w-8 h-[1px] bg-gold-500/40" />
           <p className="text-white/30 text-xs sm:text-sm uppercase tracking-[0.2em]" style={{ fontFamily: 'var(--font-sans)' }}>
-            {hero.trustBadge} &middot; Est. {siteData.business.established} &middot; Harare
+            {business.projectsCompleted} Deliveries &middot; {business.yearsExperience} Years &middot; {business.rating} Stars
           </p>
         </motion.div>
 
@@ -254,7 +231,7 @@ function HeroSection() {
             <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
           </Link>
           <Link
-            to="/projects"
+            to="/services"
             className="group inline-flex items-center gap-3 border border-white/20 text-white px-8 py-4 text-sm uppercase tracking-[0.15em] font-semibold transition-all duration-500 hover:border-gold-500/50 hover:text-gold-400 hover:bg-white/5"
             style={{ fontFamily: 'var(--font-sans)' }}
           >
@@ -271,44 +248,31 @@ function HeroSection() {
         className="absolute bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2"
       >
         <span className="text-white/20 text-[10px] uppercase tracking-[0.3em]" style={{ fontFamily: 'var(--font-sans)' }}>Scroll</span>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-        >
+        <motion.div animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}>
           <ArrowDown size={14} className="text-gold-500/40" />
         </motion.div>
       </motion.div>
-
-      {/* Side text -- vertical */}
-      <div className="hidden lg:flex absolute right-8 bottom-12 z-20">
-        <span
-          className="text-white/10 text-[10px] uppercase tracking-[0.4em]"
-          style={{ writingMode: 'vertical-rl', fontFamily: 'var(--font-sans)' }}
-        >
-          Fragrance Landscapes &mdash; Harare, Zimbabwe
-        </span>
-      </div>
     </section>
   );
 }
 
 
 /* ================================================================
-   2. GOLD MARQUEE TICKER
+   2. ROUTE TRACKING STRIP — animated green ticker
    ================================================================ */
-function MarqueeTicker() {
-  const items = ['GARDEN DESIGN', 'LANDSCAPING', 'IRRIGATION', 'TREE CARE', 'HARDSCAPING', 'LAWN CARE'];
-  const repeated = [...items, ...items, ...items, ...items];
+function ServiceMarquee() {
+  const routes = ['GARDENS', 'LAWNS', 'HEDGES', 'INDIGENOUS', 'WATER FEATURES', 'IRRIGATION', 'PAVING', 'FENCING', 'LIGHTING'];
+  const repeated = [...routes, ...routes, ...routes, ...routes];
 
   return (
-    <section className="bg-navy-950 border-y border-gold-500/10 py-5 sm:py-6 overflow-hidden">
+    <section className="bg-[#0a2a1a] border-y border-gold-500/10 py-5 sm:py-6 overflow-hidden">
       <div className="animate-marquee flex whitespace-nowrap">
         {repeated.map((item, i) => (
           <span key={i} className="flex items-center gap-6 sm:gap-8 mx-6 sm:mx-8">
-            <span className="text-gold-500/80 font-heading text-lg sm:text-2xl italic tracking-wider">
+            <span className="text-gold-500/80 font-heading text-lg sm:text-2xl tracking-wider uppercase font-semibold">
               {item}
             </span>
-            <span className="text-gold-500/20 text-sm">&diams;</span>
+            <Leaf size={14} weight="fill" className="text-gold-500/20 rotate-90" />
           </span>
         ))}
       </div>
@@ -318,31 +282,37 @@ function MarqueeTicker() {
 
 
 /* ================================================================
-   3. SERVICES GRID -- 6 cards with full-bleed photos
+   3. SERVICES GRID — overlay cards with green accent
    ================================================================ */
 function ServicesGrid() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
   const { servicesPreview, services } = siteData;
 
-  const serviceImages = ['https://images.unsplash.com/photo-1558904541-efa843a96f01?w=800&q=80', 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&q=80', 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=80', 'https://images.unsplash.com/photo-1558904541-efa843a96f01?w=800&q=80', 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&q=80', 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=80'];
+  const serviceImages = [
+    'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=80',
+    'https://images.unsplash.com/photo-1558904541-efa843a96f01?w=800&q=80',
+    'https://images.unsplash.com/photo-1558904541-efa843a96f01?w=800&q=80',
+    'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=80',
+    'https://images.unsplash.com/photo-1558904541-efa843a96f01?w=800&q=80',
+    'https://images.unsplash.com/photo-1558904541-efa843a96f01?w=800&q=80',
+  ];
 
   return (
-    <section ref={ref} className="bg-navy-900 py-24 sm:py-32 lg:py-40">
+    <section ref={ref} className="bg-[#0f3d25] py-24 sm:py-32 lg:py-40">
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
           className="mb-14 sm:mb-20"
         >
-          <div className="w-12 h-[2px] bg-gold-500 mb-6" />
+          <div className="w-12 h-[3px] bg-gold-500 mb-6" />
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
             <div>
-              <p className="text-gold-500/60 text-xs uppercase tracking-[0.3em] mb-3" style={{ fontFamily: 'var(--font-sans)' }}>Our Expertise</p>
-              <h2 className="font-heading text-white leading-[0.92] italic" style={{ fontSize: 'clamp(2rem, 4.5vw, 3.5rem)' }}>
-                What We <span className="text-gold-500">Deliver</span>
+              <p className="text-gold-500/60 text-xs uppercase tracking-[0.3em] mb-3" style={{ fontFamily: 'var(--font-sans)' }}>What We Create</p>
+              <h2 className="font-heading text-white leading-[0.92]" style={{ fontSize: 'clamp(2rem, 4.5vw, 3.5rem)' }}>
+                Our <span className="text-gold-500">Craft</span>
               </h2>
             </div>
             <Link
@@ -356,7 +326,6 @@ function ServicesGrid() {
           </div>
         </motion.div>
 
-        {/* Grid -- first card spans 2 cols */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {servicesPreview.map((service, i) => {
             const IconComp = iconMap[service.icon] || Star;
@@ -372,32 +341,28 @@ function ServicesGrid() {
                   to={`/services#${services?.items?.[i]?.slug || ''}`}
                   className={`group relative block overflow-hidden ${i === 0 ? 'aspect-[16/9] sm:aspect-[2/1]' : 'aspect-[3/4]'}`}
                 >
-                  {/* Image */}
                   <img
-                    src={serviceImages[i]}
+                    src={serviceImages[i] || serviceImages[0]}
                     alt={service.title}
                     className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-110"
-                    loading="lazy"
+                    loading={i === 0 ? 'eager' : 'lazy'}
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a2a1a] via-[#0a2a1a]/60 to-[#0a2a1a]/20 opacity-90" />
 
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/60 to-navy-950/20 opacity-90" />
-
-                  {/* Gold number watermark */}
+                  {/* Green number watermark */}
                   <div className="absolute top-4 right-5 z-10">
-                    <span className="text-gold-500/15 font-heading text-6xl sm:text-7xl italic leading-none">
+                    <span className="text-gold-500/10 font-heading text-6xl sm:text-7xl leading-none font-bold">
                       {String(i + 1).padStart(2, '0')}
                     </span>
                   </div>
 
-                  {/* Gold icon badge */}
-                  <div className="absolute top-5 left-5 z-10 w-10 h-10 border border-gold-500/30 flex items-center justify-center bg-navy-950/60 backdrop-blur-sm group-hover:bg-gold-500/20 group-hover:border-gold-500/60 transition-all duration-500">
-                    <IconComp size={18} weight="light" className="text-gold-500" />
+                  {/* Green icon badge — filled */}
+                  <div className="absolute top-5 left-5 z-10 w-10 h-10 bg-gold-500/20 border border-gold-500/30 flex items-center justify-center group-hover:bg-gold-500/30 group-hover:border-gold-500/60 transition-all duration-500">
+                    <IconComp size={18} weight="fill" className="text-gold-400" />
                   </div>
 
-                  {/* Content */}
                   <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-10">
-                    <h3 className="font-heading text-white text-xl sm:text-2xl italic tracking-wide mb-2">
+                    <h3 className="font-heading text-white text-xl sm:text-2xl tracking-wide mb-2">
                       {service.title}
                     </h3>
                     <p className="text-white/60 text-sm leading-relaxed" style={{ fontFamily: 'var(--font-sans)' }}>
@@ -409,8 +374,7 @@ function ServicesGrid() {
                     </div>
                   </div>
 
-                  {/* Bottom gold accent */}
-                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-gold-500 to-gold-400 z-10" />
+                  <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-gold-500 to-gold-300 z-10" />
                 </Link>
               </motion.div>
             );
@@ -423,16 +387,15 @@ function ServicesGrid() {
 
 
 /* ================================================================
-   4. PORTFOLIO GALLERY -- Horizontal scrolling
+   4. FLEET SHOWCASE — horizontal scroll with vehicle cards
    ================================================================ */
-function PortfolioGallery() {
+function ProjectGallery() {
   const containerRef = useRef(null);
-  const scrollRef = useRef(null);
   const inView = useInView(containerRef, { once: true, margin: '-80px' });
   const { projects } = siteData;
 
   return (
-    <section ref={containerRef} className="bg-navy-950 py-24 sm:py-32 lg:py-40 overflow-hidden">
+    <section ref={containerRef} className="bg-[#0a2a1a] py-24 sm:py-32 lg:py-40 overflow-hidden">
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 mb-12 sm:mb-16">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -441,10 +404,10 @@ function PortfolioGallery() {
           className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6"
         >
           <div>
-            <div className="w-12 h-[2px] bg-gold-500 mb-6" />
-            <p className="text-gold-500/60 text-xs uppercase tracking-[0.3em] mb-3" style={{ fontFamily: 'var(--font-sans)' }}>Selected Works</p>
-            <h2 className="font-heading text-white leading-[0.92] italic" style={{ fontSize: 'clamp(2.5rem, 6vw, 5rem)' }}>
-              Our <span className="text-gold-500">Portfolio</span>
+            <div className="w-12 h-[3px] bg-gold-500 mb-6" />
+            <p className="text-gold-500/60 text-xs uppercase tracking-[0.3em] mb-3" style={{ fontFamily: 'var(--font-sans)' }}>Our Gardens</p>
+            <h2 className="font-heading text-white leading-[0.92]" style={{ fontSize: 'clamp(2rem, 5vw, 4rem)' }}>
+              Where Nature Meets <span className="text-gold-500">Design</span>
             </h2>
           </div>
           <Link
@@ -464,7 +427,6 @@ function PortfolioGallery() {
         transition={{ duration: 1, delay: 0.2 }}
       >
         <div
-          ref={scrollRef}
           className="flex gap-4 sm:gap-5 overflow-x-auto px-5 sm:px-8 lg:px-12 pb-4"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
         >
@@ -480,15 +442,18 @@ function PortfolioGallery() {
                   className="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-110"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-navy-950/0 group-hover:bg-navy-950/40 transition-colors duration-700" />
+                <div className="absolute inset-0 bg-[#0a2a1a]/0 group-hover:bg-[#0a2a1a]/40 transition-colors duration-700" />
+                <div className="absolute inset-0 border-2 border-transparent group-hover:border-gold-500/40 transition-colors duration-500 z-10" />
+
                 <div className="absolute top-5 left-5 z-10">
                   <span className="bg-gold-500/90 text-navy-950 text-[10px] uppercase tracking-[0.2em] px-3 py-1.5 font-semibold" style={{ fontFamily: 'var(--font-sans)' }}>
                     {project.category}
                   </span>
                 </div>
               </div>
-              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-navy-950 via-navy-950/80 to-transparent">
-                <h4 className="text-white font-heading text-lg sm:text-xl italic tracking-wide">
+
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#0a2a1a] via-[#0a2a1a]/80 to-transparent">
+                <h4 className="text-white font-heading text-lg sm:text-xl tracking-wide">
                   {project.title}
                 </h4>
                 <p className="text-white/40 text-xs mt-1 uppercase tracking-wider" style={{ fontFamily: 'var(--font-sans)' }}>
@@ -505,7 +470,7 @@ function PortfolioGallery() {
 
 
 /* ================================================================
-   5. STATS BAND -- Gold counters on dark
+   5. STATS — Green counters on dark
    ================================================================ */
 function StatsBand() {
   const ref = useRef(null);
@@ -513,7 +478,7 @@ function StatsBand() {
   const { stats } = siteData;
 
   return (
-    <section ref={ref} className="relative bg-navy-950 overflow-hidden">
+    <section ref={ref} className="relative bg-[#0a2a1a] overflow-hidden">
       <div className="absolute inset-0">
         <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-48 h-48 bg-gold-500/5 rounded-full blur-3xl" />
         <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-48 h-48 bg-gold-500/5 rounded-full blur-3xl" />
@@ -532,8 +497,8 @@ function StatsBand() {
               className="text-center relative"
             >
               <div
-                className="font-heading text-gold-500 leading-none italic"
-                style={{ fontSize: 'clamp(2.8rem, 6vw, 5rem)', textShadow: '0 0 40px rgba(212,168,83,0.15)' }}
+                className="font-heading text-gold-500 leading-none font-bold"
+                style={{ fontSize: 'clamp(2.8rem, 6vw, 5rem)', textShadow: '0 0 40px rgba(202,165,21,0.15)' }}
               >
                 <AnimatedCounter target={stat.number.replace(/[^0-9]/g, '')} suffix={stat.number.replace(/[0-9]/g, '')} duration={2.5} />
               </div>
@@ -553,7 +518,7 @@ function StatsBand() {
 
 
 /* ================================================================
-   6. ABOUT / STORY SECTION -- Split layout
+   6. ABOUT — Split layout, green accents
    ================================================================ */
 function AboutSection() {
   const ref = useRef(null);
@@ -561,7 +526,7 @@ function AboutSection() {
   const { business } = siteData;
 
   return (
-    <section ref={ref} className="bg-navy-950 py-24 sm:py-32 lg:py-40 overflow-hidden">
+    <section ref={ref} className="bg-[#0a2a1a] py-24 sm:py-32 lg:py-40 overflow-hidden">
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           <motion.div
@@ -569,31 +534,33 @@ function AboutSection() {
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.9, ease: 'easeOut' }}
           >
-            <div className="w-12 h-[2px] bg-gold-500 mb-6" />
-            <p className="text-gold-500/60 text-xs uppercase tracking-[0.3em] mb-3" style={{ fontFamily: 'var(--font-sans)' }}>Our Story</p>
-            <h2 className="font-heading text-white leading-[0.95] italic mb-8" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
-              The Fragrance<br />
-              <span className="text-gold-500">Story</span>
+            <div className="w-12 h-[3px] bg-gold-500 mb-6" />
+            <p className="text-gold-500/60 text-xs uppercase tracking-[0.3em] mb-3" style={{ fontFamily: 'var(--font-sans)' }}>About Us</p>
+            <h2 className="font-heading text-white leading-[0.95] mb-8" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
+              Moving Zimbabwe<br />
+              <span className="text-gold-500">Forward</span>
             </h2>
-            {siteData.about.story.map((para, i) => (
-              <p key={i} className={`text-sm sm:text-base leading-relaxed mb-6 max-w-lg ${i === 0 ? 'text-white/50' : 'text-white/35'}`} style={{ fontFamily: 'var(--font-sans)' }}>
-                {para}
-              </p>
-            ))}
+            <p className="text-white/50 text-sm sm:text-base leading-relaxed mb-6 max-w-lg" style={{ fontFamily: 'var(--font-sans)' }}>
+              {business.description || 'Legit Carriers has built a reputation as one of Harare\'s most trusted logistics companies. From our humble beginnings, we\'ve grown into a full-service freight and courier operation, connecting businesses across Zimbabwe and the SADC region.'}
+            </p>
+            <p className="text-white/35 text-sm leading-relaxed max-w-lg" style={{ fontFamily: 'var(--font-sans)' }}>
+              With a fleet of modern vehicles, GPS tracking on every shipment, and a team that understands the urgency of business logistics, we deliver more than parcels. We deliver peace of mind.
+            </p>
 
             <div className="w-full h-px bg-white/5 my-8" />
+
             <div className="flex gap-10 sm:gap-16">
               <div>
-                <div className="text-gold-500 font-heading text-3xl sm:text-4xl italic leading-none">{business.established}</div>
+                <div className="text-gold-500 font-heading text-3xl sm:text-4xl leading-none font-bold">{business.established}</div>
                 <div className="text-white/30 text-[10px] uppercase tracking-[0.2em] mt-2" style={{ fontFamily: 'var(--font-sans)' }}>Founded</div>
               </div>
               <div>
-                <div className="text-gold-500 font-heading text-3xl sm:text-4xl italic leading-none">{business.projectsCompleted}</div>
-                <div className="text-white/30 text-[10px] uppercase tracking-[0.2em] mt-2" style={{ fontFamily: 'var(--font-sans)' }}>Projects</div>
+                <div className="text-gold-500 font-heading text-3xl sm:text-4xl leading-none font-bold">{business.projectsCompleted}</div>
+                <div className="text-white/30 text-[10px] uppercase tracking-[0.2em] mt-2" style={{ fontFamily: 'var(--font-sans)' }}>Deliveries</div>
               </div>
               <div>
-                <div className="text-gold-500 font-heading text-3xl sm:text-4xl italic leading-none">{business.employees}</div>
-                <div className="text-white/30 text-[10px] uppercase tracking-[0.2em] mt-2" style={{ fontFamily: 'var(--font-sans)' }}>Team</div>
+                <div className="text-gold-500 font-heading text-3xl sm:text-4xl leading-none font-bold">99%</div>
+                <div className="text-white/30 text-[10px] uppercase tracking-[0.2em] mt-2" style={{ fontFamily: 'var(--font-sans)' }}>On-Time</div>
               </div>
             </div>
           </motion.div>
@@ -607,24 +574,24 @@ function AboutSection() {
             <div className="relative">
               <div className="overflow-hidden">
                 <img
-                  src="https://images.unsplash.com/photo-1558904541-efa843a96f01?w=800&q=80"
-                  alt="Fragrance Landscapes showcase"
+                  src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=80"
+                  alt="Legit Carriers fleet"
                   className="w-full aspect-[4/5] object-cover object-center"
                   loading="lazy"
                 />
               </div>
               <div className="absolute -bottom-8 -left-6 sm:-left-10 w-[45%] overflow-hidden border-4 border-navy-950 shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=600&q=80"
-                  alt="Fragrance Landscapes detail"
+                  src="https://images.unsplash.com/photo-1558904541-efa843a96f01?w=600&q=80"
+                  alt="Logistics warehouse"
                   className="w-full aspect-square object-cover object-center"
                   loading="lazy"
                 />
               </div>
               <div className="absolute -top-4 -right-4 sm:-right-6 bg-gold-500 text-navy-950 p-5 sm:p-7 shadow-2xl">
                 <div className="text-center">
-                  <div className="font-heading text-xs uppercase tracking-[0.2em] leading-none" style={{ fontFamily: 'var(--font-sans)' }}>Est.</div>
-                  <div className="font-heading text-3xl sm:text-4xl italic leading-none mt-1">{business.established}</div>
+                  <div className="font-heading text-xs uppercase tracking-[0.2em] leading-none font-semibold" style={{ fontFamily: 'var(--font-sans)' }}>Est.</div>
+                  <div className="font-heading text-3xl sm:text-4xl leading-none mt-1 font-bold">{business.established}</div>
                 </div>
               </div>
               <div className="absolute -top-3 -left-3 w-16 h-16 border-t-2 border-l-2 border-gold-500/30" />
@@ -638,21 +605,22 @@ function AboutSection() {
 
 
 /* ================================================================
-   7. WHY CHOOSE US -- 4 points with image
+   7. WHY CHOOSE US — checklist with image
    ================================================================ */
 function WhyChooseUs() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
+  const { business } = siteData;
 
   const points = [
-    { title: 'Sustainable Methods', desc: 'We use organic practices and indigenous plants that thrive naturally in Zimbabwe.' },
-    { title: 'Custom Design', desc: 'Every garden is designed from scratch to complement your property and lifestyle.' },
-    { title: 'Expert Team', desc: 'Qualified horticulturists and landscapers with deep knowledge of local conditions.' },
-    { title: 'Year-Round Care', desc: 'Ongoing maintenance packages that keep your garden in peak condition every season.' }
+    { title: 'Fragrant Garden Design', desc: 'Aromatic herbs, fragrant flowers, and sensory gardens designed to delight every sense.' },
+    { title: 'Complete Landscaping', desc: 'From concept to completion. Softscaping, hardscaping, irrigation, and garden lighting.' },
+    { title: 'Maintenance Plans', desc: 'Weekly, fortnightly, or monthly garden care. We keep your landscape looking its best year-round.' },
+    { title: 'Water Management', desc: 'Smart irrigation systems, rainwater harvesting, and drought-resistant planting for water-wise gardens.' },
   ];
 
   return (
-    <section ref={ref} className="bg-navy-900 py-24 sm:py-32 lg:py-40 overflow-hidden">
+    <section ref={ref} className="bg-[#0f3d25] py-24 sm:py-32 lg:py-40 overflow-hidden">
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
           <motion.div
@@ -662,8 +630,8 @@ function WhyChooseUs() {
             className="relative"
           >
             <img
-              src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=80"
-              alt="Fragrance Landscapes quality work"
+              src="https://images.unsplash.com/photo-1558904541-efa843a96f01?w=800&q=80"
+              alt="Logistics operations"
               className="w-full aspect-[4/5] object-cover object-center"
               loading="lazy"
             />
@@ -676,10 +644,10 @@ function WhyChooseUs() {
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.9, delay: 0.15 }}
           >
-            <div className="w-12 h-[2px] bg-gold-500 mb-6" />
-            <p className="text-gold-500/60 text-xs uppercase tracking-[0.3em] mb-3" style={{ fontFamily: 'var(--font-sans)' }}>The Difference</p>
-            <h2 className="font-heading text-white leading-[0.95] italic mb-12" style={{ fontSize: 'clamp(2rem, 4.5vw, 3rem)' }}>
-              Why Choose <span className="text-gold-500">Fragrance</span>
+            <div className="w-12 h-[3px] bg-gold-500 mb-6" />
+            <p className="text-gold-500/60 text-xs uppercase tracking-[0.3em] mb-3" style={{ fontFamily: 'var(--font-sans)' }}>The Advantage</p>
+            <h2 className="font-heading text-white leading-[0.95] mb-12" style={{ fontSize: 'clamp(2rem, 4.5vw, 3rem)' }}>
+              Why Choose <span className="text-gold-500">{business.name}</span>
             </h2>
 
             <div className="space-y-8">
@@ -692,12 +660,12 @@ function WhyChooseUs() {
                   className="flex gap-5"
                 >
                   <div className="shrink-0 mt-1">
-                    <div className="w-8 h-8 border border-[#00BCD4]/30 flex items-center justify-center bg-[#00BCD4]/5">
-                      <CheckCircle size={16} weight="fill" className="text-[#00BCD4]" />
+                    <div className="w-8 h-8 bg-gold-500/10 border border-gold-500/30 flex items-center justify-center">
+                      <CheckCircle size={16} weight="fill" className="text-gold-500" />
                     </div>
                   </div>
                   <div>
-                    <h4 className="font-heading text-white text-base sm:text-lg italic tracking-wide mb-1">
+                    <h4 className="font-heading text-white text-base sm:text-lg tracking-wide mb-1">
                       {point.title}
                     </h4>
                     <p className="text-white/40 text-sm leading-relaxed" style={{ fontFamily: 'var(--font-sans)' }}>
@@ -716,7 +684,7 @@ function WhyChooseUs() {
 
 
 /* ================================================================
-   8. TESTIMONIALS -- Dark bg, gold quote marks, auto-cycling
+   8. TESTIMONIALS — dark bg, green accents, auto-cycling
    ================================================================ */
 function TestimonialsSection() {
   const [active, setActive] = useState(0);
@@ -740,9 +708,8 @@ function TestimonialsSection() {
   const t = homeTestimonials[active];
 
   return (
-    <section ref={ref} className="relative bg-navy-950 py-24 sm:py-32 lg:py-40 overflow-hidden">
+    <section ref={ref} className="relative bg-[#0a2a1a] py-24 sm:py-32 lg:py-40 overflow-hidden">
       <NoiseTexture opacity={0.02} />
-
       <div className="relative z-10 max-w-4xl mx-auto px-5 sm:px-8 lg:px-12">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -760,7 +727,7 @@ function TestimonialsSection() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.6 }}
             >
-              <blockquote className="text-white text-lg sm:text-xl lg:text-2xl leading-relaxed font-heading italic mb-10">
+              <blockquote className="text-white text-lg sm:text-xl lg:text-2xl leading-relaxed font-heading mb-10">
                 &ldquo;{t.text}&rdquo;
               </blockquote>
 
@@ -790,30 +757,15 @@ function TestimonialsSection() {
           </AnimatePresence>
 
           <div className="flex items-center justify-center gap-6 mt-12">
-            <button
-              onClick={prev}
-              className="w-10 h-10 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold-500 hover:border-gold-500/30 transition-colors duration-300"
-              aria-label="Previous testimonial"
-            >
+            <button onClick={prev} className="w-10 h-10 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold-500 hover:border-gold-500/30 transition-colors duration-300" aria-label="Previous testimonial">
               <CaretLeft size={16} />
             </button>
             <div className="flex gap-2">
               {homeTestimonials.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActive(i)}
-                  className={`h-[2px] transition-all duration-500 ${
-                    i === active ? 'w-10 bg-gold-500' : 'w-3 bg-white/10 hover:bg-white/25'
-                  }`}
-                  aria-label={`Go to testimonial ${i + 1}`}
-                />
+                <button key={i} onClick={() => setActive(i)} className={`h-[2px] transition-all duration-500 ${i === active ? 'w-10 bg-gold-500' : 'w-3 bg-white/10 hover:bg-white/25'}`} aria-label={`Go to testimonial ${i + 1}`} />
               ))}
             </div>
-            <button
-              onClick={next}
-              className="w-10 h-10 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold-500 hover:border-gold-500/30 transition-colors duration-300"
-              aria-label="Next testimonial"
-            >
+            <button onClick={next} className="w-10 h-10 border border-white/10 flex items-center justify-center text-white/30 hover:text-gold-500 hover:border-gold-500/30 transition-colors duration-300" aria-label="Next testimonial">
               <CaretRight size={16} />
             </button>
           </div>
@@ -825,7 +777,7 @@ function TestimonialsSection() {
 
 
 /* ================================================================
-   9. CTA SECTION -- Cinematic full-bleed
+   9. CTA — full-bleed with parallax
    ================================================================ */
 function CTASection() {
   const { business, homeCta } = siteData;
@@ -840,12 +792,12 @@ function CTASection() {
     <section ref={ref} className="relative py-28 sm:py-36 lg:py-48 overflow-hidden">
       <motion.div className="absolute inset-0" style={{ y: bgY }}>
         <img
-          src={homeCta.backgroundImage}
-          alt="Fragrance Landscapes"
+          src={homeCta?.backgroundImage || 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1920&q=85'}
+          alt="Logistics CTA background"
           className="w-full h-[130%] object-cover object-center"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-navy-950/70" />
+        <div className="absolute inset-0 bg-[#0a2a1a]/70" />
       </motion.div>
 
       <NoiseTexture opacity={0.03} />
@@ -857,21 +809,18 @@ function CTASection() {
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 1 }}
         >
-          <div className="w-16 h-[2px] bg-gold-500 mx-auto mb-8" />
+          <div className="w-16 h-[3px] bg-gold-500 mx-auto mb-8" />
+
           <h2
-            className="font-heading text-white leading-[0.92] italic mb-8"
+            className="font-heading text-white leading-[0.92] mb-8"
             style={{ fontSize: 'clamp(2.5rem, 8vw, 6rem)' }}
           >
-            {homeCta.title.split('\\n').map((line, i) => (
-              <span key={i}>
-                {i > 0 && <br />}
-                {i > 0 ? <span className="text-gold-500">{line}</span> : line}
-              </span>
-            ))}
+            YOUR CARGO<br />
+            <span className="text-gold-500">OUR COMMITMENT</span>
           </h2>
 
           <p className="text-white/50 text-sm sm:text-base lg:text-lg max-w-lg mx-auto mb-12 leading-relaxed" style={{ fontFamily: 'var(--font-sans)' }}>
-            {homeCta.subtitle}
+            {homeCta?.subtitle || 'Get a free quote today and experience why businesses across Zimbabwe trust Legit Carriers with their logistics.'}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -880,34 +829,31 @@ function CTASection() {
               className="group relative inline-flex items-center gap-3 bg-gold-500 text-navy-950 px-8 py-4 text-sm uppercase tracking-[0.15em] font-semibold transition-all duration-500 hover:bg-gold-400 hover:shadow-xl hover:shadow-gold-500/25"
               style={{ fontFamily: 'var(--font-sans)' }}
             >
-              {homeCta.ctaPrimary}
+              {homeCta?.ctaPrimary || 'Get a Quote'}
               <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
             </Link>
             <a
-              href={`https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(homeCta.whatsappText)}`}
+              href={`https://wa.me/${business.whatsappNumber}?text=${encodeURIComponent(homeCta?.whatsappText || 'Hello, I would like a logistics quote.')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-center gap-3 border border-[#00BCD4]/40 text-[#00BCD4] px-8 py-4 text-sm uppercase tracking-[0.15em] font-semibold transition-all duration-500 hover:bg-[#00BCD4]/10 hover:border-[#00BCD4]/60"
+              className="group inline-flex items-center gap-3 border border-gold-500/40 text-gold-400 px-8 py-4 text-sm uppercase tracking-[0.15em] font-semibold transition-all duration-500 hover:bg-gold-500/10 hover:border-gold-500/60"
               style={{ fontFamily: 'var(--font-sans)' }}
             >
               <WhatsappLogo size={20} weight="fill" />
-              {homeCta.ctaSecondary}
+              {homeCta?.ctaSecondary || 'WhatsApp Us'}
             </a>
           </div>
 
-          {/* Contact strip */}
-          <div className="mt-16 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-center gap-6 text-xs text-white/25 uppercase tracking-[0.15em]" style={{ fontFamily: 'var(--font-sans)' }}>
-            <a href={`tel:${business.phoneRaw}`} className="flex items-center gap-2 hover:text-gold-500 transition-colors">
-              <Phone size={14} /> {business.phone}
-            </a>
-            <span className="hidden sm:inline text-white/10">|</span>
-            <a href={`mailto:${business.email}`} className="hover:text-gold-500 transition-colors">
-              {business.email}
-            </a>
-            <span className="hidden sm:inline text-white/10">|</span>
-            <span className="flex items-center gap-2">
-              <MapPin size={14} /> Harare, Zimbabwe
-            </span>
+          <div className="flex items-center justify-center gap-6 mt-10">
+            <div className="flex items-center gap-2 text-white/30 text-xs" style={{ fontFamily: 'var(--font-sans)' }}>
+              <Phone size={14} className="text-gold-500/60" />
+              <span>{business.phone}</span>
+            </div>
+            <div className="w-[1px] h-3 bg-white/10" />
+            <div className="flex items-center gap-2 text-white/30 text-xs" style={{ fontFamily: 'var(--font-sans)' }}>
+              <MapPin size={14} className="text-gold-500/60" />
+              <span>{business.city}, {business.country}</span>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -917,15 +863,15 @@ function CTASection() {
 
 
 /* ================================================================
-   HOME -- Assembled
+   PAGE EXPORT
    ================================================================ */
-function Home() {
+export default function Home() {
   return (
     <PageTransition>
       <HeroSection />
-      <MarqueeTicker />
+      <ServiceMarquee />
       <ServicesGrid />
-      <PortfolioGallery />
+      <ProjectGallery />
       <StatsBand />
       <AboutSection />
       <WhyChooseUs />
@@ -934,5 +880,3 @@ function Home() {
     </PageTransition>
   );
 }
-
-export default Home;
